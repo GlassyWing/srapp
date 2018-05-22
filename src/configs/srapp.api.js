@@ -1,4 +1,4 @@
-let BASE = 'http://111.231.215.245:9090/api/v1';
+let BASE = 'http://localhost:9090/api/v1';
 let COMP = BASE + '/comps';
 
 let SEGMENT = BASE + '/segment';
