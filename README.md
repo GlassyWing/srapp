@@ -21,13 +21,25 @@ For detailed explanation on how things work, consult the [docs for vue-loader](h
 
 ### 构件管理
 
+<img src="https://github.com/GlassyWing/srapp/blob/master/demo/comps_manage.png" width="640">
+
 ### 构件推荐
+
+<img src="https://github.com/GlassyWing/srapp/blob/master/demo/recommend.png" width="640">
 
 ### 同义字典管理
 
+
+<img src="https://github.com/GlassyWing/srapp/blob/master/demo/thesaurus_manage.png" width="640">
+
 ### 分词字典管理
+
+<img src="https://github.com/GlassyWing/srapp/blob/master/demo/jieba_manage.png" width="640">
 
 ### 历史纪录统计
 
+<img src="https://github.com/GlassyWing/srapp/blob/master/demo/history.png" width="640">
+
 ## 相关项目
 
+[基于solr和协同过滤算法的构件检索与推荐系统](https://github.com/GlassyWing/searching-recommend)
