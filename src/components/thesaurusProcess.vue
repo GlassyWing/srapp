@@ -52,7 +52,7 @@
             请输入词语以搜索同义词。
           </v-alert>
         </v-flex>
-        <transition-group name="fade">
+        <transition-group name="list">
           <v-flex xs12 class="py-1" v-for="(group, groupId) in synonymsGroups" :key="groupId">
             <thesaurus-group
               :editable="editable"
@@ -237,5 +237,18 @@
   {
     opacity: 0;
     transform: scaleY(0);
+  }
+
+  .list-item {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.5s;
+  }
+  .list-enter, .list-leave-to
+    /* .list-leave-active for below version 2.1.8 */ {
+    opacity: 0;
+    transform: translateY(30px);
   }
 </style>

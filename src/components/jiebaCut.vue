@@ -11,9 +11,13 @@
         v-model="sentence"
       />
 
-
       <transition-group name="list" tag="p">
-        <span v-for="word in words" :key="word" class="grey lighten-3 block">{{word}}</span>
+        <v-chip  v-for="word in words" :key="word"
+          color="secondary"
+          text-color="white"
+        >
+          <strong>{{word}}</strong>
+        </v-chip>
       </transition-group>
 
     </v-card-text>
@@ -56,11 +60,6 @@
 </script>
 
 <style scoped>
-  .block {
-    display: inline-block;
-    padding: 1px 4px;
-    border-radius: 2px;
-  }
 
   .list-item {
     display: inline-block;
