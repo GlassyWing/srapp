@@ -5,7 +5,7 @@
         <v-switch label="允许删除" v-model="editable"></v-switch>
       </v-flex>
       <v-flex xs10>
-        <v-layout justify-start wrap>
+        <v-layout justify-start align-start row wrap>
           <v-flex xs10>
             <v-select
               v-model="inputs"
@@ -28,11 +28,6 @@
               </template>
             </v-select>
           </v-flex>
-          <v-flex xs10 class="py-2" v-if="synonyms.length === 0">
-            <v-alert :value="true" type="info">
-              请输入词语以搜索同义词。
-            </v-alert>
-          </v-flex>
           <v-flex xs1>
             <v-tooltip right>
               <transition  name="fade" slot="activator">
@@ -43,27 +38,33 @@
                 </v-btn>
                 <v-btn v-if="combinable" color="green" round dark medium
                        @click="">
-                  <v-icon>add</v-icon>
+                  <v-icon>add_circle_outline</v-icon>
                 </v-btn>
               </transition>
               <span>{{!combinable ? '添加同义词' : '合并同义词组'}}</span>
             </v-tooltip>
-
           </v-flex>
         </v-layout>
       </v-flex>
-     <transition v-for="(group, groupId) in synonymsGroups" :key="groupId">
-       <v-flex xs10 class="py-2" >
-         <thesaurus-group
-           :editable="editable"
-           :groupId="groupId"
-           :words="group"
-           :inputs="inputs"
-           @clear="deleteSynonymsGroup"
-           @remove="removeWord"
-         />
-       </v-flex>
-     </transition>
+      <v-flex xs10 class="py-2">
+        <v-flex xs10 class="py-2" v-if="synonyms.length === 0">
+          <v-alert :value="true" type="info">
+            请输入词语以搜索同义词。
+          </v-alert>
+        </v-flex>
+        <transition-group name="fade">
+          <v-flex xs12 class="py-1" v-for="(group, groupId) in synonymsGroups" :key="groupId">
+            <thesaurus-group
+              :editable="editable"
+              :groupId="groupId"
+              :words="group"
+              :inputs="inputs"
+              @clear="deleteSynonymsGroup"
+              @remove="removeWord"
+            />
+          </v-flex>
+        </transition-group>
+      </v-flex>
     </v-layout>
   </div>
 </template>
@@ -234,6 +235,7 @@
 
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
   {
-    transform: scale(0);
+    opacity: 0;
+    transform: scaleY(0);
   }
 </style>

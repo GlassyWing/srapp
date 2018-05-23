@@ -1,19 +1,18 @@
 <template>
-  <v-layout>
+  <v-layout justify-start row wrap>
     <v-flex xs10>
       <v-card>
         <v-card-text>
           <div class="text-xs-left">
-            <transition name="fade" v-for="word in words" :key="word">
-              <v-chip :close="editable"
+            <transition-group name="list">
+              <v-chip v-for="word in words" :key="word" :close="editable"
                       :color="chooseColor(word)"
                       text-color="white"
-                      :key="word"
                       @input="remove(word)"
               >
                 {{word}}
               </v-chip>
-            </transition>
+            </transition-group>
           </div>
         </v-card-text>
       </v-card>
@@ -77,5 +76,18 @@
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
   {
     transform: scale(0);
+  }
+
+  .list-item {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .list-enter-active, .list-leave-active {
+    transition: all 0.5s;
+  }
+  .list-enter, .list-leave-to
+    /* .list-leave-active for below version 2.1.8 */ {
+    opacity: 0;
+    transform: translateX(30px);
   }
 </style>

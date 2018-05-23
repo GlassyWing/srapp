@@ -50,7 +50,7 @@
           </v-list-tile>
           <v-list-tile @click="toggleView('/history/add')">
             <v-list-tile-action>
-              <v-icon>assignment</v-icon>
+              <v-icon>playlist_add</v-icon>
             </v-list-tile-action>
             <v-list-tile-content>
               <v-list-tile-title>历史纪录添加</v-list-tile-title>
