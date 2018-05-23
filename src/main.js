@@ -37,6 +37,7 @@ const router = new VueRouter({
     {path: '/jieba', component: JiebaManage},
     {path: '/thesaurus', component: ThesaurusManage},
     {path: '/recommend', component: RecommendManage},
+    {path: '/recommend/:uuid/:compName', component: RecommendManage},
     {path: '/history/statistics', component: HistoryStatistics},
     {path: '/history/add', component: HistoryAdd},
     {path: '', component: CompManage}

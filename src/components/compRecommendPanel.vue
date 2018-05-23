@@ -1,11 +1,11 @@
 <template>
-  <v-card class="elevation-3">
+  <v-card flat>
     <v-card-text>
-      <h3>为正在使用构件“{{compName}}”的用户“{{uuid}}”推荐下{{num}}个构件</h3>
+      <h3>为正在使用构件“{{compName}}”的用户“{{uuid}}”推荐以下至多{{num}}个构件</h3>
     </v-card-text>
     <v-card-text>
       <v-slider v-model="num" thumb-label step="1" ticks min="1" max="30"/>
-      <comp-recommend-chart :chart-data="recommendList"/>
+      <comp-recommend-chart :chart-data="recommendList" :options="options"/>
     </v-card-text>
   </v-card>
 </template>
@@ -27,10 +27,17 @@
         num: 10,
         uuid: '',
         compName: '',
-        recommendList: {labels: [], datasets: []}
+        recommendList: {labels: [], datasets: []},
+        options: {
+          onClick: this.selectComp
+        }
       }
     },
     methods: {
+      selectComp(event, eles) {
+        this.compName = this.recommendList.labels[eles[0]._index];
+        this.$router.push(`/recommend/${this.uuid}/${this.compName}`);
+      },
       getRecommendList(uuid, compName) {
         if (uuid != null && compName != null) {
           this.uuid = uuid;
@@ -70,6 +77,12 @@
     },
     watch: {
       num(newVal, oldVal) {
+        this.refreshList()
+      },
+      '$route' (to, from) {
+        // 对路由变化作出响应...
+        this.uuid = to.params.uuid;
+        this.compName = to.params.compName;
         this.refreshList()
       }
     }
