@@ -42,7 +42,7 @@
         nameCharLen: 25,
         nameRules: [
           v => !!v || '构件名不能为空',
-          v => /^[A-Z]+\.[A-Za-z]+$/.test(v) || '构件名格式如：(ARRAYUTIL.join)',
+          v => /^[A-Z_]+\.[A-Za-z_]+$/.test(v) || '构件名格式如：(ARRAYUTIL.join)',
           v => v.length <= this.nameCharLen || '构件名长度过长'
         ],
         descRules: [

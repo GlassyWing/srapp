@@ -5,31 +5,29 @@
     </v-card-title>
     <v-card-text>
       <v-form v-model="validate">
-        <v-layout v-if="!horizon" justify-start row wrap>
-          <v-flex xs12>
+        <v-layout :justify-start="!horizon" :justify-center="horizon" row wrap>
+          <v-flex xs12 :sm4="horizon">
             <v-text-field v-model="uuid" label="用户UUID" prepend-icon="perm_identity" :rules="uuidRules">
             </v-text-field>
           </v-flex>
-          <v-flex xs12 class="py-3">
-            <v-text-field v-model="compName" label="构件名" prepend-icon="extension" :rules="compNameRules">
-            </v-text-field>
+          <v-flex xs12 :sm4="horizon" :class="{'py-3': !horizon}">
+            <v-select
+              :loading="isChecking"
+              :items="components"
+              :search-input.sync="search"
+              :rules="compNameRules"
+              v-model="compName"
+              label="构件名"
+              autocomplete
+              single-line
+              cache-items
+              item-value="text"
+              required
+              prepend-icon="extension"
+            ></v-select>
           </v-flex>
-          <v-flex xs12 class="py-3">
-            <v-btn color="primary" @click="sendSignal" :disabled="!validate || !isCompNameExists">{{actionText}}</v-btn>
-          </v-flex>
-        </v-layout>
-
-        <v-layout v-if="horizon" justify-center>
-          <v-flex xs12 sm4>
-            <v-text-field v-model="uuid" label="用户UUID" prepend-icon="perm_identity" :rules="uuidRules">
-            </v-text-field>
-          </v-flex>
-          <v-flex xs12 sm4>
-            <v-text-field v-model="compName" label="构件名" prepend-icon="extension" :rules="compNameRules">
-            </v-text-field>
-          </v-flex>
-          <v-flex xs12 sm4>
-            <v-btn color="primary" @click="sendSignal" :disabled="!validate || !isCompNameExists">{{actionText}}</v-btn>
+          <v-flex xs12 :sm4="horizon" :class="{'py-3': !horizon}">
+            <v-btn color="primary" @click="sendSignal" :disabled="!validate">{{actionText}}</v-btn>
           </v-flex>
         </v-layout>
       </v-form>
@@ -53,8 +51,9 @@
       validate: false,
       addable: false,
       uuid: '',
-      compName: '',
-      isCompNameExists: false,
+      compName: null,
+      search: '',
+      components: [],
       isChecking: false,
       uuidRules: [
         v => !!v || 'uuid 不能为空',
@@ -62,7 +61,7 @@
       ],
       compNameRules: [
         v => !!v || '构件名不能为空',
-        v => /^[A-Z]+\.[A-Za-z]+$/.test(v) || '构件名格式如：(ARRAYUTIL.join)'
+        v => /^[A-Z]+\.[A-Za-z_]+$/.test(v) || '构件名格式如：(ARRAYUTIL.join)'
       ]
     }),
     methods: {
@@ -74,29 +73,19 @@
           this.$message.info("正在检查中，请稍后！")
         }
 
-        if (!this.isCompNameExists) {
-          validateCount += 1;
-          this.$message.warning("构件：" + this.compName + "不存在")
-        }
-
         if (validateCount === 0) {
           this.$emit("selected", {uuid: this.uuid, compName: this.compName})
         }
       },
-      checkIsCompExistsNow(compName) {
-        let query = compName.trim();
-        if (!(!!query)) return;
+      reloadComponents(search) {
+        if (!(!!search)) return;
+        let query = search.trim();
         this.isChecking = true;
         this.$http.get(COMP + '/' + query)
           .then(response => {
             response.json().then(result => {
               let size = result['comps'].length;
-              if (size !== 1) {
-                this.$message.error("构件：" + compName + "不存在！");
-                this.isCompNameExists = false;
-              } else {
-                this.isCompNameExists = true;
-              }
+              this.components = result['comps'].map(comp => ({text: comp.name}));
               this.isChecking = false;
             }, error => {
               this.isChecking = false;
@@ -104,14 +93,19 @@
             })
           })
       },
-      checkIsCompExistsWait: _.debounce(function () {
-        this.checkIsCompExistsNow(this.compName)
+      reloadComponentsWait: _.debounce(function () {
+        this.reloadComponents(this.search)
       }, 600)
     },
 
     watch: {
-      compName(newVal, oldVal) {
-        this.checkIsCompExistsWait()
+      search(newVal, oldVal) {
+        if (!(!!newVal)) {
+          this.components = [];
+          this.isChecking = false;
+        } else {
+          this.reloadComponentsWait()
+        }
       }
     }
   }

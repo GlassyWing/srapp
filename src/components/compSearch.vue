@@ -13,7 +13,8 @@
                   <h3>构建名：{{editedItem.name}}</h3>
                 </v-flex>
                 <v-flex xs12>
-                  <v-text-field v-model="editedItem.describe" multi-line :rules="updateRules" label="构件描述"></v-text-field>
+                  <v-text-field v-model="editedItem.describe" multi-line :rules="updateRules"
+                                label="构件描述"></v-text-field>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -22,7 +23,8 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-          <v-btn color="blue darken-1" :disabled="!validate" flat @click.native="updateComponent(editedItem)">Save</v-btn>
+          <v-btn color="blue darken-1" :disabled="!validate" flat @click.native="updateComponent(editedItem)">Save
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -136,13 +138,13 @@
             })
           }, error => {
             if (error.status === 404) {
-              this.$notify.error("构件：" + component.name + "不存在！")
+              this.$message.error("构件：" + component.name + "不存在！")
             }
           })
       },
 
       isCompName(info) {
-        return /^[A-Z]+\.[A-Za-z]+$/.test(info)
+        return /^[A-Z_]+(\.[A-Za-z_]+)?$/.test(info)
       },
       forceSearchComp: function () {
         this.isLoading = true;
@@ -156,7 +158,7 @@
                   this.isLoading = false
                 }, error => {
                   this.isLoading = false;
-                  this.$notify.error("发生不可知的错误，请联系管理员!")
+                  this.$message.error("发生不可知的错误，请联系管理员!")
                 })
               })
           } else {
@@ -172,7 +174,7 @@
               })
             }, (error) => {
               this.isLoading = false;
-              this.$notify.error("发生不可知的错误，请联系管理员!")
+              this.$message.error("发生不可知的错误，请联系管理员!")
             })
           }
         } else {
@@ -187,8 +189,10 @@
         this.$http.delete(COMP + '/' + component.name)
           .then(response => {
             if (response.status === 204) {
-              this.$notify.success("构件：" + component.name + "已删除。");
-              this.forceSearchComp()
+              this.$message.success("构件：" + component.name + "已删除。");
+              // this.forceSearchComp()
+              this.items.splice(this.items.indexOf(component), 1);
+              this.items = Object.assign([], this.items)
             }
           })
       }
