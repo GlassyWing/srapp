@@ -233,6 +233,9 @@
         if (newVal.length === 0) {
           this.clear();
         }
+        if (newVal.length < 2){
+          this.addable = false
+        }
         let isDelete = newVal.length < oldVal.length;
         let word;
         // 当移除一个单词时
