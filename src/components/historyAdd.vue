@@ -13,15 +13,39 @@
                 </v-text-field>
               </v-flex>
               <v-flex xs12 class="py-3">
-                <v-text-field v-model="compName" label="构件名" prepend-icon="extension" :rules="compNameRules">
-                </v-text-field>
+                <v-select
+                  :loading="isChecking"
+                  :items="components"
+                  :search-input.sync="searchCompName"
+                  :rules="compNameRules"
+                  v-model="compName"
+                  label="构件名"
+                  autocomplete
+                  single-line
+                  cache-items
+                  item-value="text"
+                  required
+                  prepend-icon="extension"
+                ></v-select>
               </v-flex>
               <v-flex xs12 class="py-3">
-                <v-text-field v-model="followCompName" label="下一个构件名" prepend-icon="extension" :rules="compNameRules">
-                </v-text-field>
+                <v-select
+                  :loading="isChecking"
+                  :items="followComponents"
+                  :search-input.sync="searchFollowCompName"
+                  :rules="compNameRules"
+                  v-model="followCompName"
+                  label="下一个构件名"
+                  autocomplete
+                  single-line
+                  cache-items
+                  item-value="text"
+                  required
+                  prepend-icon="extension"
+                ></v-select>
               </v-flex>
               <v-flex xs12 class="py-3">
-                <v-btn color="primary" :disabled="!validate || !isCompNameExists || !isFollowCompNameExists"
+                <v-btn color="primary" :disabled="!validate || isChecking"
                        @click="addHistory">添加历史纪录</v-btn>
               </v-flex>
             </v-layout>
@@ -34,6 +58,7 @@
 
 <script>
   import {COMP} from "../configs/srapp.api";
+  import {HISTORY} from "../configs/srapp.api";
   import _ from 'lodash'
 
   export default {
@@ -41,10 +66,12 @@
     data: () => ({
       validate: false,
       uuid: '',
-      compName: '',
-      isCompNameExists: false,
-      followCompName: '',
-      isFollowCompNameExists: false,
+      compName: null,
+      searchCompName: '',
+      components: [],
+      followCompName: null,
+      searchFollowCompName: '',
+      followComponents: [],
       isChecking: false,
       uuidRules: [
         v => !!v || 'uuid 不能为空',
@@ -61,27 +88,18 @@
       }
     },
     methods: {
-      checkIsCompExistsNow(compName, forCompName) {
-        let query = compName.trim();
-        if (!(!!query)) return;
+      reloadComponents(search, forComp) {
+        if (!(!!search)) return;
+        let query = search.trim();
         this.isChecking = true;
         this.$http.get(COMP + '/' + query)
           .then(response => {
             response.json().then(result => {
               let size = result['comps'].length;
-              if (size !== 1) {
-                this.$message.error("构件：" + compName + "不存在！");
-                if (forCompName) {
-                  this.isCompNameExists = false;
-                } else {
-                  this.isFollowCompNameExists = false;
-                }
+              if (forComp) {
+                this.components = result['comps'].map(comp => ({text: comp.name})).sort();
               } else {
-                if (forCompName) {
-                  this.isCompNameExists = true;
-                } else {
-                  this.isFollowCompNameExists = true;
-                }
+                this.followComponents = result['comps'].map(comp => ({text: comp.name}));
               }
               this.isChecking = false;
             }, error => {
@@ -90,11 +108,11 @@
             })
           })
       },
-      checkIsCompExistsWait: _.debounce(function () {
-        this.checkIsCompExistsNow(this.compName, true)
+      reloadComponentsWait: _.debounce(function () {
+        this.reloadComponents(this.searchCompName, true)
       }, 500),
-      checkIsFollowCompExistsWait: _.debounce(function () {
-        this.checkIsCompExistsNow(this.followCompName, false)
+      reloadFollowComponentsWait: _.debounce(function () {
+        this.reloadComponents(this.searchFollowCompName, false)
       }, 500),
       addHistory() {
         let validateCount = 0;
@@ -103,27 +121,26 @@
           this.$message.info("正在检查中，请稍后！")
         }
 
-        if (!this.isCompNameExists) {
-          validateCount += 1;
-          this.$message.warning("构件：" + this.compName + "不存在")
-        }
-
-        if (!this.isFollowCompNameExists) {
-          validateCount += 1;
-          this.$message.warning("下一个构件：" + this.followCompName + "不存在")
-        }
-
         if (validateCount === 0) {
-          console.log(this.history)
+          this.$http.post(HISTORY + "?record=" + this.history).then(response => {
+            response.json().then(result => {
+              if (result["numFound"] === 1) {
+                this.$message.success("历史纪录添加成功！")
+              }
+            })
+          }, errors => {
+            this.$message.error("添加历史纪录失败，请检查请求参数和网络状态。")
+          });
+          // console.log(this.history)
         }
       }
     },
     watch: {
-      compName(newVal, oldVal) {
-        this.checkIsCompExistsWait()
+      searchCompName(newVal, oldVal) {
+        this.reloadComponentsWait()
       },
-      followCompName(newVal, oldVal) {
-        this.checkIsFollowCompExistsWait()
+      searchFollowCompName(newVal, oldVal) {
+        this.reloadFollowComponentsWait()
       }
     }
   }
